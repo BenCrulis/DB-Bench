@@ -1,12 +1,10 @@
 package concretebenchmods;
 
-import benchmod.BenchModule;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DBConnectorModule extends BenchModule<Connection> {
+public class DBConnectorModule  {
 
     public static String POSTGRES_DRIVER_NAME = "org.postgresql.Driver";
 
@@ -31,7 +29,6 @@ public class DBConnectorModule extends BenchModule<Connection> {
     }
 
 
-    @Override
     public void before() {
         try {
 
@@ -48,13 +45,12 @@ public class DBConnectorModule extends BenchModule<Connection> {
         if (this.connection != null) {
 
         } else {
-            System.out.println("Failed to make connection!");
+            System.out.println("Failed to make connection");
         }
 
 
     }
 
-    @Override
     public void after() {
 
         if (this.connection != null) {
@@ -67,11 +63,4 @@ public class DBConnectorModule extends BenchModule<Connection> {
 
     }
 
-    @Override
-    public void acceptContext(Connection connection) {}
-
-    @Override
-    public Connection getContext() {
-        return this.connection;
-    }
 }
