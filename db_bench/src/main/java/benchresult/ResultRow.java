@@ -12,6 +12,16 @@ public class ResultRow {
         this.row = row;
     }
 
+    public static ResultRow single(String column, String value) {
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put(column, value);
+        return new ResultRow(hashMap);
+    }
+
+    public static ResultRow emptyRow(){
+        return new ResultRow(new HashMap<>());
+    }
+
     public int size(){
         return this.row.size();
     }
@@ -41,10 +51,17 @@ public class ResultRow {
     }
 
     public ResultRow augmentWith(ResultRow other) {
-        HashMap<String,Object> newRow = (HashMap<String, Object>) this.row.clone();
-        for (Map.Entry<String, Object> entry : other.row.entrySet()){
+        HashMap<String, Object> newRow = (HashMap<String, Object>) this.row.clone();
+        for (Map.Entry<String, Object> entry : other.row.entrySet()) {
             newRow.putIfAbsent(entry.getKey(), entry.getValue());
         }
         return new ResultRow(newRow);
+    }
+
+    @Override
+    public String toString() {
+        return "ResultRow{" +
+                "row=" + row +
+                '}';
     }
 }
