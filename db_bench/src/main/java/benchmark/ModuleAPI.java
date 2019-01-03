@@ -4,10 +4,7 @@ import benchmod.BenchMod;
 import benchresult.ResultRow;
 
 import java.util.Iterator;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public class ModuleAPI {
 
@@ -31,6 +28,10 @@ public class ModuleAPI {
         return new BenchMod.ContextProvider<>((x) -> supplier.get(), (a,b) -> destructor.accept(b));
     }
 
+    public static <A> BenchMod.ContextProvider<A,Void> unitContext(Consumer<A> before, Consumer<A> after){
+        return new BenchMod.ContextProvider<A,Void>((x) -> {before.accept(x); return null;} , (x,nu) -> { after.accept(x); } );
+    }
+
     public static <A> BenchMod.Sequence<A> sequence(BenchMod<A,Void>... benchMods ){
         return BenchMod.Sequence.sequence(benchMods);
     }
@@ -45,5 +46,9 @@ public class ModuleAPI {
 
     public static <A,B> BenchMod.AsContext<A,B,Void> asContext(Function<A,B> supplier, BiConsumer<A,B> biConsumer, BenchMod<B,Void> benchMod) {
         return new BenchMod.AsContext<>(context(supplier,biConsumer), benchMod);
+    }
+
+    public static <A> BenchMod.Repeat<A> repeat(int number, String tagName, BenchMod.UseContextOnly<A> benchMod){
+        return new BenchMod.Repeat<>(number, tagName, benchMod);
     }
 }

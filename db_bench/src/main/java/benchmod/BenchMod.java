@@ -185,6 +185,11 @@ public interface BenchMod<A,B> {
         private String iterTag;
         private UseContextOnly<A> benchMod;
 
+        public Repeat(int repeat, String iterTag, UseContextOnly<A> benchMod) {
+            this.repeat = repeat;
+            this.iterTag = iterTag;
+            this.benchMod = benchMod;
+        }
 
         @Override
         public Iterator<ResultRow> getIterator(A context) {
@@ -204,11 +209,18 @@ public interface BenchMod<A,B> {
 
                 @Override
                 public ResultRow next() {
-                    if (actual == null || !actual.hasNext()){
+                    if (actual == null){
                         actual = benchMod.getIterator(context);
                     }
 
-                    return actual.next().put(iterTag, repeat);
+                    ResultRow resultRow = actual.next().put(iterTag, i);
+
+                    if (!actual.hasNext()){
+                        i += 1;
+                        actual = null;
+                    }
+
+                    return resultRow;
                 }
             };
         }

@@ -14,6 +14,11 @@ import java.util.HashMap;
 
 public class DatabaseUtil {
 
+    enum INDEX_TYPE {
+        HASH,
+        Test
+    }
+
     public static String POSTGRES_DRIVER_NAME = "org.postgresql.Driver";
 
     public static BenchMod.ContextProvider<Void, Connection> postgresContext(String host, String db, String user, String password) {
@@ -29,6 +34,7 @@ public class DatabaseUtil {
         return ModuleAPI.provideContext(() -> {
             Connection conn = null;
 
+            System.out.println("Connecting to database.");
             try {
                 conn = DriverManager.getConnection(url,user,password);
             } catch (SQLException e) {
@@ -38,6 +44,7 @@ public class DatabaseUtil {
             return conn;
 
         }, (Connection conn) -> {
+            System.out.println("Closing connection to database.");
             try {
                 conn.close();
             } catch (SQLException e) {
@@ -82,6 +89,10 @@ public class DatabaseUtil {
                 return ResultRow.single("error", "yes");
             }
         });
+    }
+
+    public static void test(){
+
     }
 
 }
