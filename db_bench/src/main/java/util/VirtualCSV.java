@@ -52,12 +52,16 @@ public class VirtualCSV
     }
 
     public void save(String path){
+        save(path, this.separator);
+    }
+
+    public void save(String path, String separator){
         int c = columnsHeaders.size();
         try {
             PrintWriter out = new PrintWriter(new File(path));
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < c - 1; j++) {
-                    out.print(columns.get(j).get(i) + ",");
+                    out.print(columns.get(j).get(i) + separator);
                 }
                 out.println(columns.get(c - 1).get(i));
             }
