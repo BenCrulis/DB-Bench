@@ -6,7 +6,7 @@ import benchresult.ResultRow;
 import java.util.Iterator;
 import java.util.function.*;
 
-public class ModuleAPI {
+public class API {
 
     public static <A,B> Iterable<ResultRow> iterate(BenchMod<A,B> benchMod, A context){
         return () -> benchMod.exec(context).a;

@@ -1,15 +1,12 @@
 package concretebenchmods;
 
-import benchmark.ModuleAPI;
+import benchmark.API;
 import benchmod.BenchMod;
 import benchresult.ResultRow;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.*;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
 
 public class DatabaseUtil {
@@ -31,7 +28,7 @@ public class DatabaseUtil {
 
         String url = "jdbc:postgresql://"+host+":5432/"+db;
 
-        return ModuleAPI.provideContext(() -> {
+        return API.provideContext(() -> {
             Connection conn = null;
 
             System.out.println("Connecting to database.");
@@ -92,7 +89,7 @@ public class DatabaseUtil {
     }
 
     public static BenchMod<Connection, Void> createIndex(INDEX_TYPE index_type, String columns, String table, String name, boolean unique){
-        return ModuleAPI.unitContext((connection) -> {
+        return API.unitContext((connection) -> {
                     try {
                         PreparedStatement preparedStatement = connection.prepareCall(
                                 "CREATE "+(unique?"UNIQUE":"")+" INDEX "+name+" on "+table+" USING "+index_type+ " ("+columns+");");
