@@ -17,13 +17,13 @@ public class VirtualCSV
     }
 
     public VirtualCSV(String... columnNames){
-        columnsHeaders = Arrays.asList(columnNames);
+        columnsHeaders = new ArrayList<>(Arrays.asList(columnNames));
         this.columns = new ArrayList<>(columnsHeaders.size());
     }
 
     public void addColumn(String columnName){
         columnsHeaders.add(columnName);
-        columns.add(Collections.nCopies(rows, "null"));
+        columns.add(new ArrayList<>(Collections.nCopies(rows, "null")));
     }
 
     public void addColumns(String... columnNames ){
@@ -61,6 +61,7 @@ public class VirtualCSV
                 }
                 out.println(columns.get(c - 1).get(i));
             }
+            out.close();
         } catch (FileNotFoundException e) {
             System.err.printf("Path '%s' to save the CSV is invalid.%n", path);
         }

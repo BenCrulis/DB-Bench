@@ -58,6 +58,10 @@ public class ResultRow {
         return new ResultRow(newRow);
     }
 
+    public HashMap<String, Object> getRow() {
+        return row;
+    }
+
     @Override
     public String toString() {
         return "ResultRow{" +
