@@ -22,7 +22,7 @@ public class Iterators {
 
         return new Iterator<A>() {
 
-            Iterator<A> actual = null;
+            Iterator<A> actual = nested.hasNext() ? nested.next() : null;
 
             @Override
             public boolean hasNext() {

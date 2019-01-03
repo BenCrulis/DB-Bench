@@ -36,17 +36,7 @@ public interface BenchMod<A,B> {
 
         @Override
         public Triplet<Iterator<ResultRow>, Supplier<B>, Consumer<B>> exec(A a) {
-            return new Triplet<>(new Iterator<ResultRow>() {
-                @Override
-                public boolean hasNext() {
-                    return false;
-                }
-
-                @Override
-                public ResultRow next() {
-                    return null;
-                }
-            }, () -> supplier.apply(a), (b) -> consumer.accept(a,b));
+            return new Triplet<>(Collections.emptyIterator(), () -> supplier.apply(a), (b) -> consumer.accept(a,b));
         }
     }
 
