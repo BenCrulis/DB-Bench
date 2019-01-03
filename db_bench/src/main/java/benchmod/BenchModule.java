@@ -3,6 +3,7 @@ package benchmod;
 import benchresult.ResultRow;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -11,16 +12,25 @@ interface BenchModule<Context> {
     interface ModuleVisitor<R,C> {
 
         <T> R visit(Contexted<T> contexted);
+        R visit(PassiveContextProvider<C> passiveContextProvider);
         R visit(Module module);
         R visit(NeedContextModule<C> needContextModule);
         R visit(Repeat<C> repeatModule);
         R visit(Tag<C> tagModule);
     }
 
+    <R> R accept(ModuleVisitor<R,Context> visitor);
+
+
     class BenchModuleIterableProvider<C> implements ModuleVisitor<Function<C,Iterator<ResultRow>>, C> {
 
         @Override
         public <T> Function<C, Iterator<ResultRow>> visit(Contexted<T> contexted) {
+            return null;
+        }
+
+        @Override
+        public Function<C, Iterator<ResultRow>> visit(PassiveContextProvider<C> passiveContextProvider) {
             return null;
         }
 
@@ -74,6 +84,31 @@ interface BenchModule<Context> {
         }
 
         @Override
+        public Iterator<ResultRow> visit(PassiveContextProvider<Void> passiveContextProvider) {
+            passiveContextProvider.before.accept(null);
+
+            Iterator<ResultRow> iterator = passiveContextProvider.accept(new BenchModuleIterable());
+
+            return new Iterator<ResultRow>() {
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
+
+                @Override
+                public ResultRow next() {
+                    ResultRow nextRow = iterator.next();
+
+                    if (!iterator.hasNext()){
+                        passiveContextProvider.after.accept(null);
+                    }
+
+                    return nextRow;
+                }
+            };
+        }
+
+        @Override
         public Iterator<ResultRow> visit(Module module) {
             return null;
         }
@@ -94,8 +129,6 @@ interface BenchModule<Context> {
         }
     }
 
-    <T> T accept(ModuleVisitor<T,Context> visitor);
-
     class Module implements BenchModule<Void> {
 
         Supplier<ResultRow> supplier;
@@ -110,20 +143,37 @@ interface BenchModule<Context> {
         }
     }
 
-    class NeedContextModule<T> implements BenchModule<T> {
+    class NeedContextModule<C> implements BenchModule<C> {
 
-        private Function<T,ResultRow> benchFunction;
+        private Function<C,ResultRow> benchFunction;
 
-        public NeedContextModule(Function<T, ResultRow> benchFunction) {
+        public NeedContextModule(Function<C, ResultRow> benchFunction) {
             this.benchFunction = benchFunction;
         }
 
-        public ResultRow execute(T context) {
+        public ResultRow execute(C context) {
             return this.benchFunction.apply(context);
         }
 
         @Override
-        public <R> R accept(ModuleVisitor<R,T> visitor) {
+        public <R> R accept(ModuleVisitor<R, C> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    class PassiveContextProvider<C> implements BenchModule<C> {
+        private Consumer<C> before;
+        private Consumer<C> after;
+        private BenchModule<C> module;
+
+        public PassiveContextProvider(Consumer<C> before, Consumer<C> after, BenchModule<C> module) {
+            this.before = before;
+            this.after = after;
+            this.module = module;
+        }
+
+        @Override
+        public <R> R accept(ModuleVisitor<R, C> visitor) {
             return visitor.visit(this);
         }
     }
