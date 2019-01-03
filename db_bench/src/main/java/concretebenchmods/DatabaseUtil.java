@@ -15,8 +15,8 @@ import java.util.HashMap;
 public class DatabaseUtil {
 
     enum INDEX_TYPE {
-        HASH,
-        Test
+        hash,
+        btree
     }
 
     public static String POSTGRES_DRIVER_NAME = "org.postgresql.Driver";
@@ -91,8 +91,29 @@ public class DatabaseUtil {
         });
     }
 
-    public static void test(){
+    public static BenchMod<Connection, Void> createIndex(INDEX_TYPE index_type, String columns, String table, String name, boolean unique){
+        return ModuleAPI.unitContext((connection) -> {
+                    try {
+                        PreparedStatement preparedStatement = connection.prepareCall(
+                                "CREATE "+(unique?"UNIQUE":"")+" INDEX "+name+" on "+table+" USING "+index_type+ " ("+columns+");");
+                        preparedStatement.execute();
+                        preparedStatement.close();
 
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                },
+                (connection) -> {
+                    PreparedStatement preparedStatement = null;
+                    try {
+                        preparedStatement = connection.prepareStatement("DROP INDEX "+name+";");
+                        preparedStatement.execute();
+                        preparedStatement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                });
     }
 
 }
