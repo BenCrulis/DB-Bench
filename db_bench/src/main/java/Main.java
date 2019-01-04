@@ -6,8 +6,6 @@ import concretebenchmods.DatabaseUtil.INDEX_TYPE;
 import util.VirtualCSV;
 
 import java.sql.*;
-import java.util.Arrays;
-import java.util.List;
 
 public class Main {
 
@@ -121,7 +119,7 @@ public class Main {
 
     public static final BenchMod.Sequence<Connection> allQueries = API.sequence(custom1, custom2, tpch2, tpch21);
 
-    public static final List<BenchMod<Connection, Connection>> foreign_keys = Arrays.asList(
+    public static final BenchMod<Connection, Connection> foreign_keys = API.mergeContexts(
             DatabaseUtil.foreignKeyContext("supplier_n_nationkey", "supplier", "s_nationkey", "nation(n_nationkey)"),
             DatabaseUtil.foreignKeyContext("partsupp_ps_partkey", "partsupp", "ps_partkey", "part(p_partkey)"),
             DatabaseUtil.foreignKeyContext("partsupp_ps_suppkey", "partsupp", "ps_suppkey", "supplier(s_suppkey)"),
@@ -133,7 +131,7 @@ public class Main {
             DatabaseUtil.foreignKeyContext("nantion_n_regionkey", "nation", "n_regionkey", "region(r_regionkey)")
     );
 
-    public static final List<BenchMod<Connection, Connection>> hash_join = Arrays.asList(
+    public static final BenchMod<Connection, Connection> hash_join = API.mergeContexts(
             DatabaseUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false),
             DatabaseUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false)
     );

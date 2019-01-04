@@ -3,6 +3,7 @@ package benchmark;
 import benchmod.BenchMod;
 import benchresult.ResultRow;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.*;
 
@@ -22,6 +23,14 @@ public class API {
 
     public static <A,B> BenchMod.ContextProvider<A,B> context(Function<A,B> supplier, BiConsumer<A,B> biConsumer) {
         return new BenchMod.ContextProvider<>(supplier,biConsumer);
+    }
+
+    public static <A> BenchMod<A,A> mergeContexts(BenchMod<A,A>... benchMods){
+        if (benchMods.length == 0){
+            throw new IllegalArgumentException("Not enough BenchMods for reduction");
+        }
+
+        return Arrays.stream(benchMods).reduce(BenchMod.AsContext::new).get();
     }
 
     public static <A> BenchMod.ContextProvider<Void,A> provideContext(Supplier<A> supplier, Consumer<A> destructor) {
