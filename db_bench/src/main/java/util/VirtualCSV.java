@@ -59,6 +59,7 @@ public class VirtualCSV
         int c = columnsHeaders.size();
         try {
             PrintWriter out = new PrintWriter(new File(path));
+            out.println(String.join(separator, columnsHeaders));
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < c - 1; j++) {
                     out.print(columns.get(j).get(i) + separator);
