@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class DatabaseUtil {
 
-    enum INDEX_TYPE {
+    public enum INDEX_TYPE {
         hash,
         btree
     }
@@ -88,13 +88,14 @@ public class DatabaseUtil {
         });
     }
 
-    public static BenchMod<Connection, Void> createIndex(INDEX_TYPE index_type, String columns, String table, String name, boolean unique){
-        return API.unitContext((connection) -> {
+    public static BenchMod.ContextProvider<Connection, Connection> indexContext(INDEX_TYPE index_type, String columns, String table, String name, boolean unique){
+        return API.passContext((connection) -> {
                     try {
-                        PreparedStatement preparedStatement = connection.prepareCall(
+                        PreparedStatement preparedStatement = connection.prepareStatement(
                                 "CREATE "+(unique?"UNIQUE":"")+" INDEX "+name+" on "+table+" USING "+index_type+ " ("+columns+");");
                         preparedStatement.execute();
                         preparedStatement.close();
+                        System.out.println("Created index "+name);
 
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -106,11 +107,39 @@ public class DatabaseUtil {
                         preparedStatement = connection.prepareStatement("DROP INDEX "+name+";");
                         preparedStatement.execute();
                         preparedStatement.close();
+                        System.out.println("Deleted index "+name);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
 
                 });
+    }
+
+    public static BenchMod.ContextProvider<Connection,Connection> foreignKeyContext(String name, String table, String column, String reference){
+        return API.passContext((connection) -> {
+                    try {
+                        PreparedStatement preparedStatement = connection.prepareStatement(
+                                "ALTER TABLE "+table+" ADD CONSTRAINT "+name+" FOREIGN KEY ("+column+") REFERENCES "+reference+";");
+                        preparedStatement.execute();
+                        preparedStatement.close();
+                        System.out.println("Created foreign key "+name);
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                },
+        (connection) -> {
+            String sql = "ALTER TABLE "+table+" DROP CONSTRAINT "+name+";";
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.execute();
+                preparedStatement.close();
+                System.out.println("Deleted foreign key "+name);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } );
     }
 
 }

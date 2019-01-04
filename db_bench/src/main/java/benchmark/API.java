@@ -32,6 +32,10 @@ public class API {
         return new BenchMod.ContextProvider<A,Void>((x) -> {before.accept(x); return null;} , (x,nu) -> { after.accept(x); } );
     }
 
+    public static <A> BenchMod.ContextProvider<A,A> passContext(Consumer<A> before, Consumer<A> after){
+        return new BenchMod.ContextProvider<>((x) -> {before.accept(x); return x;}, (x, nu) -> {after.accept(x);});
+    }
+
     public static <A> BenchMod.Sequence<A> sequence(BenchMod<A,Void>... benchMods ){
         return BenchMod.Sequence.sequence(benchMods);
     }
