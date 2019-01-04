@@ -2,6 +2,7 @@ import benchmark.API;
 import benchmod.BenchMod;
 import benchresult.ResultRow;
 import concretebenchmods.DatabaseUtil;
+import util.VirtualCSV;
 
 import java.sql.*;
 
@@ -136,10 +137,14 @@ public class Main {
         BenchMod<Void,Void> benchMod = API.asContext(DatabaseUtil.postgresContext(host,"tpch",user, password),
                 API.repeat(5,"iteration",allQueries));
 
+        VirtualCSV virtualCSV = new VirtualCSV();
         for (ResultRow resultRow :
                 API.iterate(benchMod)) {
             System.out.println(resultRow);
+            virtualCSV.addRow(resultRow.getRow());
         }
+
+        virtualCSV.save(args[3], ";");
 
     }
 
