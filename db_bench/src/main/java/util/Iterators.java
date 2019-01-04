@@ -26,12 +26,13 @@ public class Iterators {
 
             @Override
             public boolean hasNext() {
-                if (nested.hasNext()) {
-                    return true;
-                }
 
                 if (actual == null) {
                     return false;
+                }
+
+                while (!actual.hasNext() && nested.hasNext() ){
+                    actual = nested.next();
                 }
 
                 return actual.hasNext();
