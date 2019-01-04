@@ -7,10 +7,10 @@ import java.util.*;
 
 public class VirtualCSV
 {
-    public List<String> columnsHeaders;
-    public List<List<String>> columns;
-    int rows = 0;
-    String separator = ",";
+    private List<String> columnsHeaders;
+    private List<List<String>> columns;
+    private int rows = 0;
+    private String separator = ";";
 
     public void setSeparator(String separator) {
         this.separator = separator;
@@ -30,7 +30,7 @@ public class VirtualCSV
         Arrays.stream(columnNames).forEach(this::addColumn);
     }
 
-    public void addRow(HashMap<String, Object> row){
+    public void addRow(Map<String, Object> row){
         Set<String> requested = new HashSet<>(row.keySet());
 
         //check if something is new

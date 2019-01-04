@@ -3,13 +3,14 @@ package benchresult;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class ResultRow {
 
-    private HashMap<String,Object> row;
+    private TreeMap<String,Object> row;
 
-    public ResultRow(HashMap<String, Object> row) {
-        this.row = row;
+    public ResultRow(Map<String, Object> row) {
+        this.row = new TreeMap<>(row);
     }
 
     public static ResultRow single(String column, String value) {
@@ -39,33 +40,31 @@ public class ResultRow {
     }
 
     public ResultRow put(String key, Object value){
-        HashMap<String,Object> newRow = (HashMap<String, Object>) this.row.clone();
+        TreeMap<String,Object> newRow = (TreeMap<String, Object>) this.row.clone();
         newRow.put(key,value);
         return new ResultRow(newRow);
     }
 
     public ResultRow putIfAbsent(String key, Object value){
-        HashMap<String,Object> newRow = (HashMap<String, Object>) this.row.clone();
+        TreeMap<String,Object> newRow = (TreeMap<String, Object>) this.row.clone();
         newRow.putIfAbsent(key,value);
         return new ResultRow(newRow);
     }
 
     public ResultRow augmentWith(ResultRow other) {
-        HashMap<String, Object> newRow = (HashMap<String, Object>) this.row.clone();
+        TreeMap<String, Object> newRow = (TreeMap<String, Object>) this.row.clone();
         for (Map.Entry<String, Object> entry : other.row.entrySet()) {
             newRow.putIfAbsent(entry.getKey(), entry.getValue());
         }
         return new ResultRow(newRow);
     }
 
-    public HashMap<String, Object> getRow() {
+    public TreeMap<String, Object> getRow() {
         return row;
     }
 
     @Override
     public String toString() {
-        return "ResultRow{" +
-                "row=" + row +
-                '}';
+        return "ResultRow" + row;
     }
 }
