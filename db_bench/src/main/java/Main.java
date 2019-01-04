@@ -5,6 +5,8 @@ import concretebenchmods.DatabaseUtil;
 import util.VirtualCSV;
 
 import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main {
 
@@ -118,6 +120,18 @@ public class Main {
 
     public static final BenchMod.Sequence<Connection> allQueries = API.sequence(custom1, custom2, tpch2, tpch21);
 
+    public static final List<BenchMod<Connection, Connection>> foreign_keys = Arrays.asList(
+            DatabaseUtil.foreignKeyContext("supplier_n_nationkey", "supplier", "s_nationkey", "nation(n_nationkey)"),
+            DatabaseUtil.foreignKeyContext("partsupp_ps_partkey", "partsupp", "ps_partkey", "part(p_partkey)"),
+            DatabaseUtil.foreignKeyContext("partsupp_ps_suppkey", "partsupp", "ps_suppkey", "supplier(s_suppkey)"),
+            DatabaseUtil.foreignKeyContext("customer_c_nationkey", "customer", "c_nationkey", "nation(n_nationkey)"),
+            DatabaseUtil.foreignKeyContext("orders_o_custkey", "orders", "o_custkey", "customer(c_custkey)"),
+            DatabaseUtil.foreignKeyContext("lineitem_l_orderkey", "order", "l_orderkey", "orders(o_orderkey)"),
+            DatabaseUtil.foreignKeyContext("lineitem_l_partkey", "order", "l_partkey", "part(p_partkey)"),
+            DatabaseUtil.foreignKeyContext("lineitem_l_suppkey", "order", "l_suppkey", "supplier(s_suppkey)"),
+            DatabaseUtil.foreignKeyContext("nantion_n_regionkey", "nation", "n_regionkey", "region(r_regionkey)")
+    );
+
 
     public static void main(String[] args) throws SQLException {
 
@@ -137,12 +151,10 @@ public class Main {
         BenchMod<Connection,Connection> testContext = DatabaseUtil.indexContext(DatabaseUtil.INDEX_TYPE.hash,
                 "n_regionkey", "nation", "regionKey_h", false );
 
-        BenchMod<Connection,Connection> context =
-        DatabaseUtil.foreignKeyContext("supplier_n_nationkey", "supplier", "s_nationkey", "nation(n_nationkey)")
-                .asContext(testContext);
+        BenchMod<Connection,Connection> foreign = testContext;
 
         BenchMod<Void,Void> benchMod = API.asContext(DatabaseUtil.postgresContext(host,"tpch",user, password),
-                context.asContext(API.repeat(5,"iteration",allQueries)));
+                foreign.asContext(API.repeat(5,"iteration",allQueries)));
 
         VirtualCSV virtualCSV = new VirtualCSV();
         for (ResultRow resultRow :
