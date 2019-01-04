@@ -134,8 +134,13 @@ public class Main {
         }
 
 
+        BenchMod<Connection,Connection> testContext = DatabaseUtil.indexContext(DatabaseUtil.INDEX_TYPE.hash,
+                "n_regionkey", "nation", "regionKey_h", true );
+
+        BenchMod<Connection,Connection> context = testContext;
+
         BenchMod<Void,Void> benchMod = API.asContext(DatabaseUtil.postgresContext(host,"tpch",user, password),
-                API.repeat(5,"iteration",allQueries));
+                API.asContext(context,API.repeat(5,"iteration",allQueries)));
 
         VirtualCSV virtualCSV = new VirtualCSV();
         for (ResultRow resultRow :
