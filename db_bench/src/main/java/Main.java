@@ -135,9 +135,11 @@ public class Main {
 
 
         BenchMod<Connection,Connection> testContext = DatabaseUtil.indexContext(DatabaseUtil.INDEX_TYPE.hash,
-                "n_regionkey", "nation", "regionKey_h", true );
+                "n_regionkey", "nation", "regionKey_h", false );
 
-        BenchMod<Connection,Connection> context = testContext;
+        BenchMod<Connection,Connection> context =
+        DatabaseUtil.foreignKeyContext("supplier_n_nationkey", "supplier", "s_nationkey", "nation(n_nationkey)")
+                .asContext(testContext);
 
         BenchMod<Void,Void> benchMod = API.asContext(DatabaseUtil.postgresContext(host,"tpch",user, password),
                 context.asContext(API.repeat(5,"iteration",allQueries)));
