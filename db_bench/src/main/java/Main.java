@@ -2,6 +2,7 @@ import benchmark.API;
 import benchmod.BenchMod;
 import benchresult.ResultRow;
 import concretebenchmods.DatabaseUtil;
+import concretebenchmods.DatabaseUtil.INDEX_TYPE;
 import util.VirtualCSV;
 
 import java.sql.*;
@@ -132,6 +133,11 @@ public class Main {
             DatabaseUtil.foreignKeyContext("nantion_n_regionkey", "nation", "n_regionkey", "region(r_regionkey)")
     );
 
+    public static final List<BenchMod<Connection, Connection>> hash_join = Arrays.asList(
+            DatabaseUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false),
+            DatabaseUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false)
+    );
+
 
     public static void main(String[] args) throws SQLException {
 
@@ -148,7 +154,7 @@ public class Main {
         }
 
 
-        BenchMod<Connection,Connection> testContext = DatabaseUtil.indexContext(DatabaseUtil.INDEX_TYPE.hash,
+        BenchMod<Connection,Connection> testContext = DatabaseUtil.indexContext(INDEX_TYPE.hash,
                 "n_regionkey", "nation", "regionKey_h", false );
 
         BenchMod<Connection,Connection> foreign = testContext;
