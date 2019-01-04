@@ -140,7 +140,7 @@ public class Main {
         BenchMod<Connection,Connection> context = testContext;
 
         BenchMod<Void,Void> benchMod = API.asContext(DatabaseUtil.postgresContext(host,"tpch",user, password),
-                API.asContext(context,API.repeat(5,"iteration",allQueries)));
+                context.asContext(API.repeat(5,"iteration",allQueries)));
 
         VirtualCSV virtualCSV = new VirtualCSV();
         for (ResultRow resultRow :

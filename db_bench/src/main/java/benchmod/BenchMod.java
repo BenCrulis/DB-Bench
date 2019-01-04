@@ -24,6 +24,10 @@ public interface BenchMod<A,B> {
         }
     }
 
+    default <C> AsContext<A,B,C> asContext(BenchMod<B,C> inContext){
+        return new AsContext<>(this, inContext);
+    }
+
     class ContextProvider<A,B> implements BenchMod<A,B> {
 
         private Function<A,B> supplier;
