@@ -80,7 +80,7 @@ public interface BenchMod<A,B> {
         }
 
         public static <T> Sequence<T> sequence(BenchMod<T,Void>... benchMods){
-            return new BenchMod.Sequence<T>(benchMods);
+            return new BenchMod.Sequence<>(benchMods);
         }
 
         @Override
@@ -89,16 +89,17 @@ public interface BenchMod<A,B> {
             Iterator<BenchMod<A,Void>> iterator = this.benchMods.iterator();
 
             return new Iterator<ResultRow>() {
-                Iterator<ResultRow> actual = null;
+                Iterator<ResultRow> actual = iterator.hasNext() ? iterator.next().exec(a).getA() : null;
 
                 @Override
                 public boolean hasNext() {
-                    if (iterator.hasNext()) {
-                        return true;
-                    }
 
                     if (actual == null) {
                         return false;
+                    }
+
+                    while (!actual.hasNext() && iterator.hasNext() ){
+                        actual = iterator.next().exec(a).getA();
                     }
 
                     return actual.hasNext();
@@ -224,6 +225,61 @@ public interface BenchMod<A,B> {
                 }
             };
         }
+    }
+
+    class ErrorCatch<A> implements UseContextOnly<A> {
+
+        BenchMod<A,Void> benchMod;
+        Function<Exception,ResultRow> catchFunction;
+
+        public ErrorCatch(BenchMod<A, Void> benchMod, Function<Exception, ResultRow> catchFunction) {
+            this.benchMod = benchMod;
+            this.catchFunction = catchFunction;
+        }
+
+        @Override
+        public Iterator<ResultRow> getIterator(A context) {
+            ErrorCatch<A> th = this;
+
+            try {
+                Triplet<Iterator<ResultRow>, Supplier<Void>, Consumer<Void> > triplet = this.benchMod.exec(context);
+
+                Iterator<ResultRow> iterator = triplet.getA();
+
+                return new Iterator<ResultRow>() {
+                    @Override
+                    public boolean hasNext() {
+                        return iterator.hasNext();
+                    }
+
+                    @Override
+                    public ResultRow next() {
+                        return iterator.next();
+                    }
+
+
+                };
+            }
+            catch (Exception e) {
+                return new Iterator<ResultRow>() {
+                    boolean notSent = true;
+
+                    @Override
+                    public boolean hasNext() {
+                        return notSent;
+                    }
+
+                    @Override
+                    public ResultRow next() {
+                        notSent = false;
+
+                        return th.catchFunction.apply(e);
+                    }
+                };
+            }
+
+        }
+
     }
 
 }
