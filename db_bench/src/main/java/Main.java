@@ -1,8 +1,8 @@
 import benchmark.API;
 import benchmod.BenchMod;
 import benchresult.ResultRow;
-import concretebenchmods.DatabaseUtil;
-import concretebenchmods.DatabaseUtil.INDEX_TYPE;
+import concretebenchmods.DBUtil;
+import concretebenchmods.DBUtil.INDEX_TYPE;
 import util.VirtualCSV;
 
 import java.sql.*;
@@ -111,29 +111,29 @@ public class Main {
             "         s_name;";
 
 
-    public static final BenchMod.Tag<Connection, Void> custom1 = API.tag("query", "custom1",DatabaseUtil.query(RAW_CUSTOM_1));
-    public static final BenchMod.Tag<Connection, Void> custom2 = API.tag("query", "custom2",DatabaseUtil.query(RAW_CUSTOM_2));
-    public static final BenchMod.Tag<Connection, Void> tpch2 = API.tag("query", "tpch2",DatabaseUtil.query(TPCH_2));
-    public static final BenchMod.Tag<Connection, Void> tpch21 = API.tag("query", "tpch21",DatabaseUtil.query(TPCH_21));
+    public static final BenchMod.Tag<Connection, Void> custom1 = API.tag("query", "custom1", DBUtil.query(RAW_CUSTOM_1));
+    public static final BenchMod.Tag<Connection, Void> custom2 = API.tag("query", "custom2", DBUtil.query(RAW_CUSTOM_2));
+    public static final BenchMod.Tag<Connection, Void> tpch2 = API.tag("query", "tpch2", DBUtil.query(TPCH_2));
+    public static final BenchMod.Tag<Connection, Void> tpch21 = API.tag("query", "tpch21", DBUtil.query(TPCH_21));
 
 
     public static final BenchMod.Sequence<Connection> allQueries = API.sequence(custom1, custom2, tpch2, tpch21);
 
     public static final BenchMod<Connection, Connection> foreign_keys = API.mergeContexts(
-            DatabaseUtil.foreignKeyContext("supplier_n_nationkey", "supplier", "s_nationkey", "nation(n_nationkey)"),
-            DatabaseUtil.foreignKeyContext("partsupp_ps_partkey", "partsupp", "ps_partkey", "part(p_partkey)"),
-            DatabaseUtil.foreignKeyContext("partsupp_ps_suppkey", "partsupp", "ps_suppkey", "supplier(s_suppkey)"),
-            DatabaseUtil.foreignKeyContext("customer_c_nationkey", "customer", "c_nationkey", "nation(n_nationkey)"),
-            DatabaseUtil.foreignKeyContext("orders_o_custkey", "orders", "o_custkey", "customer(c_custkey)"),
-            DatabaseUtil.foreignKeyContext("lineitem_l_orderkey", "order", "l_orderkey", "orders(o_orderkey)"),
-            DatabaseUtil.foreignKeyContext("lineitem_l_partkey", "order", "l_partkey", "part(p_partkey)"),
-            DatabaseUtil.foreignKeyContext("lineitem_l_suppkey", "order", "l_suppkey", "supplier(s_suppkey)"),
-            DatabaseUtil.foreignKeyContext("nantion_n_regionkey", "nation", "n_regionkey", "region(r_regionkey)")
+            DBUtil.foreignKeyContext("supplier_n_nationkey", "supplier", "s_nationkey", "nation(n_nationkey)"),
+            DBUtil.foreignKeyContext("partsupp_ps_partkey", "partsupp", "ps_partkey", "part(p_partkey)"),
+            DBUtil.foreignKeyContext("partsupp_ps_suppkey", "partsupp", "ps_suppkey", "supplier(s_suppkey)"),
+            DBUtil.foreignKeyContext("customer_c_nationkey", "customer", "c_nationkey", "nation(n_nationkey)"),
+            DBUtil.foreignKeyContext("orders_o_custkey", "orders", "o_custkey", "customer(c_custkey)"),
+            DBUtil.foreignKeyContext("lineitem_l_orderkey", "order", "l_orderkey", "orders(o_orderkey)"),
+            DBUtil.foreignKeyContext("lineitem_l_partkey", "order", "l_partkey", "part(p_partkey)"),
+            DBUtil.foreignKeyContext("lineitem_l_suppkey", "order", "l_suppkey", "supplier(s_suppkey)"),
+            DBUtil.foreignKeyContext("nantion_n_regionkey", "nation", "n_regionkey", "region(r_regionkey)")
     );
 
     public static final BenchMod<Connection, Connection> hash_join = API.mergeContexts(
-            DatabaseUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false),
-            DatabaseUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false)
+            DBUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false),
+            DBUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false)
     );
 
 
@@ -145,19 +145,19 @@ public class Main {
         String password = args[2];
 
         try {
-            Class.forName(DatabaseUtil.POSTGRES_DRIVER_NAME);
+            Class.forName(DBUtil.POSTGRES_DRIVER_NAME);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            System.err.println("Driver "+DatabaseUtil.POSTGRES_DRIVER_NAME+" not found.");
+            System.err.println("Driver "+ DBUtil.POSTGRES_DRIVER_NAME+" not found.");
         }
 
 
-        BenchMod<Connection,Connection> testContext = DatabaseUtil.indexContext(INDEX_TYPE.hash,
+        BenchMod<Connection,Connection> testContext = DBUtil.indexContext(INDEX_TYPE.hash,
                 "n_regionkey", "nation", "regionKey_h", false );
 
         BenchMod<Connection,Connection> foreign = testContext;
 
-        BenchMod<Void,Void> benchMod = API.asContext(DatabaseUtil.postgresContext(host,"tpch",user, password),
+        BenchMod<Void,Void> benchMod = API.asContext(DBUtil.postgresContext(host,"tpch",user, password),
                 foreign.asContext(API.repeat(5,"iteration",allQueries)));
 
         VirtualCSV virtualCSV = new VirtualCSV();
