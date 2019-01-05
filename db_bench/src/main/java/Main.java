@@ -138,13 +138,15 @@ public class Main {
             DBUtil.indexContext(INDEX_TYPE.hash, "o_custkey", "orders", "hj_5", false),
             DBUtil.indexContext(INDEX_TYPE.btree, "s_nationkey", "supplier", "hj_6", false),
             DBUtil.indexContext(INDEX_TYPE.btree, "n_nationkey", "nation", "hj_7", true),
-            DBUtil.indexContext(INDEX_TYPE.hash, "l_suppkey", "lineitem", "hj_8", false)
+            DBUtil.indexContext(INDEX_TYPE.hash, "l_suppkey", "lineitem", "hj_8", false),
+            DBUtil.indexContext(INDEX_TYPE.hash, "ps_suppkey", "partsupp", "hj_9", false)
 
 
             );
 
     public static final BenchMod<Connection, Connection> selections = API.mergeContexts(
-            DBUtil.indexContext(INDEX_TYPE.btree, "o_shippriority", "orders", "sel_1", false)
+            DBUtil.indexContext(INDEX_TYPE.btree, "o_shippriority", "orders", "sel_1", false),
+            DBUtil.indexContext(INDEX_TYPE.btree, "p_size", "part", "sel_2", false)
     );
 
 
@@ -182,7 +184,7 @@ public class Main {
 
         /* Alex's test stuff */
         BenchMod<Connection,Void> test = API.module((x) -> ResultRow.single("test","1"));
-        BenchMod seq = DBUtil.postgresContext(host, "tpch", user, password).asContext(join.asContext(API.<Connection>waitKeyPress().asContext(test)));
+        BenchMod seq = DBUtil.postgresContext(host, "tpch", user, password).asContext(selections.asContext(join).asContext(API.<Connection>waitKeyPress().asContext(test)));
         API.iterate(seq).forEach(o -> {});
 
     }
