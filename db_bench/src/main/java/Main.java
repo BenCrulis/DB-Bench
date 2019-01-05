@@ -3,7 +3,6 @@ import benchmod.BenchMod;
 import benchresult.ResultRow;
 import concretebenchmods.DBUtil;
 import concretebenchmods.DBUtil.INDEX_TYPE;
-import util.VirtualCSV;
 
 import java.sql.*;
 
@@ -131,16 +130,20 @@ public class Main {
             DBUtil.foreignKeyContext("nantion_n_regionkey", "nation", "n_regionkey", "region(r_regionkey)")
     );
 
-    public static final BenchMod<Connection, Connection> hash_join = API.mergeContexts(
+    public static final BenchMod<Connection, Connection> join = API.mergeContexts(
             DBUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false),
             DBUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_2", false),
             DBUtil.indexContext(INDEX_TYPE.hash, "l_partkey", "lineitem", "hj_3", false),
             DBUtil.indexContext(INDEX_TYPE.hash, "l_orderkey", "lineitem", "hj_4", false),
-            DBUtil.indexContext(INDEX_TYPE.hash, "o_custkey", "orders", "hj_5", false)
+            DBUtil.indexContext(INDEX_TYPE.hash, "o_custkey", "orders", "hj_5", false),
+            DBUtil.indexContext(INDEX_TYPE.btree, "s_nationkey", "supplier", "hj_6", false),
+            DBUtil.indexContext(INDEX_TYPE.btree, "n_nationkey", "nation", "hj_7", true),
+            DBUtil.indexContext(INDEX_TYPE.hash, "l_suppkey", "lineitem", "hj_8", false)
 
-    );
 
-    public static final BenchMod<Connection, Connection> slections = API.mergeContexts(
+            );
+
+    public static final BenchMod<Connection, Connection> selections = API.mergeContexts(
             DBUtil.indexContext(INDEX_TYPE.btree, "o_shippriority", "orders", "sel_1", false)
     );
 
@@ -179,7 +182,7 @@ public class Main {
 
         /* Alex's test stuff */
         BenchMod<Connection,Void> test = API.module((x) -> ResultRow.single("test","1"));
-        BenchMod seq = DBUtil.postgresContext(host, "tpch", user, password).asContext(foreign_keys.asContext(API.<Connection>waitKeyPress().asContext(test)));
+        BenchMod seq = DBUtil.postgresContext(host, "tpch", user, password).asContext(join.asContext(API.<Connection>waitKeyPress().asContext(test)));
         API.iterate(seq).forEach(o -> {});
 
     }
