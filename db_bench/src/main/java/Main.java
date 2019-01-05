@@ -125,9 +125,9 @@ public class Main {
             DBUtil.foreignKeyContext("partsupp_ps_suppkey", "partsupp", "ps_suppkey", "supplier(s_suppkey)"),
             DBUtil.foreignKeyContext("customer_c_nationkey", "customer", "c_nationkey", "nation(n_nationkey)"),
             DBUtil.foreignKeyContext("orders_o_custkey", "orders", "o_custkey", "customer(c_custkey)"),
-            DBUtil.foreignKeyContext("lineitem_l_orderkey", "order", "l_orderkey", "orders(o_orderkey)"),
-            DBUtil.foreignKeyContext("lineitem_l_partkey", "order", "l_partkey", "part(p_partkey)"),
-            DBUtil.foreignKeyContext("lineitem_l_suppkey", "order", "l_suppkey", "supplier(s_suppkey)"),
+            DBUtil.foreignKeyContext("lineitem_l_orderkey", "lineitem", "l_orderkey", "orders(o_orderkey)"),
+            DBUtil.foreignKeyContext("lineitem_l_partkey", "lineitem", "l_partkey", "part(p_partkey)"),
+            DBUtil.foreignKeyContext("lineitem_l_suppkey", "lineitem", "l_suppkey", "supplier(s_suppkey)"),
             DBUtil.foreignKeyContext("nantion_n_regionkey", "nation", "n_regionkey", "region(r_regionkey)")
     );
 
@@ -138,6 +138,10 @@ public class Main {
             DBUtil.indexContext(INDEX_TYPE.hash, "l_orderkey", "lineitem", "hj_4", false),
             DBUtil.indexContext(INDEX_TYPE.hash, "o_custkey", "orders", "hj_5", false)
 
+    );
+
+    public static final BenchMod<Connection, Connection> slections = API.mergeContexts(
+            DBUtil.indexContext(INDEX_TYPE.btree, "o_shippriority", "orders", "sel_1", false)
     );
 
 
@@ -161,7 +165,7 @@ public class Main {
 
         BenchMod<Connection,Connection> foreign = testContext;
 
-        BenchMod<Void,Void> benchMod = API.asContext(DBUtil.postgresContext(host,"tpch",user, password),
+        /*BenchMod<Void,Void> benchMod = API.asContext(DBUtil.postgresContext(host,"tpch",user, password),
                 foreign.asContext(API.repeat(5,"iteration",allQueries)));
 
         VirtualCSV virtualCSV = new VirtualCSV();
@@ -171,7 +175,12 @@ public class Main {
             virtualCSV.addRow(resultRow.getRow());
         }
 
-        virtualCSV.save(args[3], ";");
+        virtualCSV.save(args[3], ";");*/
+
+        /* Alex's test stuff */
+        BenchMod<Connection,Void> test = API.module((x) -> ResultRow.single("test","1"));
+        BenchMod seq = DBUtil.postgresContext(host, "tpch", user, password).asContext(foreign_keys.asContext(API.<Connection>waitKeyPress().asContext(test)));
+        API.iterate(seq).forEach(o -> {});
 
     }
 
