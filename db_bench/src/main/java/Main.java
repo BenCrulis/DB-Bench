@@ -133,7 +133,11 @@ public class Main {
 
     public static final BenchMod<Connection, Connection> hash_join = API.mergeContexts(
             DBUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false),
-            DBUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_1", false)
+            DBUtil.indexContext(INDEX_TYPE.hash, "c_nationkey", "customer", "hj_2", false),
+            DBUtil.indexContext(INDEX_TYPE.hash, "l_partkey", "lineitem", "hj_3", false),
+            DBUtil.indexContext(INDEX_TYPE.hash, "l_orderkey", "lineitem", "hj_4", false),
+            DBUtil.indexContext(INDEX_TYPE.hash, "o_custkey", "orders", "hj_5", false)
+
     );
 
 
