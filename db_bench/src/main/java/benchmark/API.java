@@ -70,7 +70,7 @@ public class API {
         return passContext((x) -> {}, (x) -> {
             System.out.println("Appuyez sur entrée pour continuer...");
             Scanner sc = new Scanner(System.in);
-            sc.nextLine();
+            sc.next();
         });
     }
 }

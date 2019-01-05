@@ -152,14 +152,17 @@ public interface BenchMod<A,B> {
                 @Override
                 public ResultRow next() {
                     ResultRow resultRow = iterator.next();
-
                     if (!iterator.hasNext()) {
                         contextTriplet.c.accept(b);
                     }
 
                     return resultRow;
                 }
-            },internalTriplet.b, internalTriplet.c);
+            },internalTriplet.b,
+            (x) -> {
+                internalTriplet.c.accept(x);
+                contextTriplet.c.accept(b);
+            });
         }
     }
 
