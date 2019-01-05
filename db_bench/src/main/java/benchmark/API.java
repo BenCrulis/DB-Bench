@@ -5,6 +5,7 @@ import benchresult.ResultRow;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.function.*;
 
 public class API {
@@ -63,5 +64,13 @@ public class API {
 
     public static <A> BenchMod.Repeat<A> repeat(int number, String tagName, BenchMod.UseContextOnly<A> benchMod){
         return new BenchMod.Repeat<>(number, tagName, benchMod);
+    }
+
+    public static <A> BenchMod.ContextProvider<A,A> waitKeyPress(){
+        return passContext((x) -> {}, (x) -> {
+            System.out.println("Appuyez sur entrée pour continuer...");
+            Scanner sc = new Scanner(System.in);
+            sc.nextLine();
+        });
     }
 }
