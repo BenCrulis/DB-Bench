@@ -146,7 +146,8 @@ public class Main {
 
     public static final BenchMod<Connection, Connection> selections = API.mergeContexts(
             DBUtil.indexContext(INDEX_TYPE.btree, "o_shippriority", "orders", "sel_1", false),
-            DBUtil.indexContext(INDEX_TYPE.btree, "p_size", "part", "sel_2", false)
+            DBUtil.indexContext(INDEX_TYPE.btree, "p_size", "part", "sel_2", false),
+            DBUtil.indexContext(INDEX_TYPE.btree, "o_orderdate", "orders", "o_orderdate_bt", false)
     );
 
 
