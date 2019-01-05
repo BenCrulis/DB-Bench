@@ -3,6 +3,7 @@ import benchmod.BenchMod;
 import benchresult.ResultRow;
 import concretebenchmods.DBUtil;
 import concretebenchmods.DBUtil.INDEX_TYPE;
+import util.VirtualCSV;
 
 import java.sql.*;
 
@@ -165,28 +166,42 @@ public class Main {
             System.err.println("Driver "+ DBUtil.POSTGRES_DRIVER_NAME+" not found.");
         }
 
+        BenchMod<Connection,Void> queryPlan = API.repeat(20,"iteration",allQueries);
 
-        BenchMod<Connection,Connection> testContext = DBUtil.indexContext(INDEX_TYPE.hash,
-                "n_regionkey", "nation", "regionKey_h", false );
-
-        BenchMod<Connection,Connection> foreign = testContext;
-
-        /*BenchMod<Void,Void> benchMod = API.asContext(DBUtil.postgresContext(host,"tpch",user, password),
-                foreign.asContext(API.repeat(5,"iteration",allQueries)));
+        BenchMod<Void,Void> benchmarkPlan =
+            API.asContext(DBUtil.postgresContext(host,"tpch",user, password),
+            API.sequence(
+                API.tag("context","baseline",       queryPlan),
+                API.tag("context","foreign_keys",   foreign_keys.asContext(queryPlan)),
+                API.tag("context","selection_opt",  foreign_keys.asContext(selections).asContext(queryPlan)),
+                API.tag("context","join_opt",       foreign_keys.asContext(join).asContext(queryPlan)),
+                API.tag("context","full",           foreign_keys.asContext(join.asContext(selections.asContext(queryPlan))))
+            ));
 
         VirtualCSV virtualCSV = new VirtualCSV();
-        for (ResultRow resultRow :
-                API.iterate(benchMod)) {
-            System.out.println(resultRow);
-            virtualCSV.addRow(resultRow.getRow());
+
+        try {
+            int i = 0;
+            for (ResultRow resultRow : API.iterate(benchmarkPlan)) {
+                i++;
+                System.out.printf("line %d: %s\n",i,resultRow.toString());
+                virtualCSV.addRow(resultRow.getRow());
+            }
+        }
+        finally {
+            virtualCSV.save(args[3], ";");
         }
 
-        virtualCSV.save(args[3], ";");*/
 
-        /* Alex's test stuff */
+
+
+
+
+        /* Alex's test stuff
         BenchMod<Connection,Void> test = API.module((x) -> ResultRow.single("test","1"));
         BenchMod seq = DBUtil.postgresContext(host, "tpch", user, password).asContext(selections.asContext(join).asContext(API.<Connection>waitKeyPress().asContext(test)));
         API.iterate(seq).forEach(o -> {});
+        */
 
     }
 
